@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport">
+  <title>Fahri Afifudin — Creative Editor &amp; Brand Designer</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <!-- Tailwind CSS v3 CDN with Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          screens: {
+            'xs': '420px',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              tosca: '#14b8a6',
+              lightTosca: '#2dd4bf',
+              deepTosca: '#0d9488',
+              vibrantTosca: '#00d2b4',
+              surface: '#0d0d11',
+              charcoal: '#121217',
+              muted: '#9ca3af',
+              border: 'rgba(255, 255, 255, 0.08)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: 
+        radial-gradient(ellipse 90% 50% at 50% -10%, rgba(20, 184, 166, 0.22) 0%, rgba(13, 148, 136, 0.08) 50%, transparent 80%),
+        radial-gradient(circle at 5% 30%, rgba(15, 118, 110, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 95% 60%, rgba(20, 184, 166, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 25% 85%, rgba(13, 148, 136, 0.12) 0%, transparent 50%),
+        linear-gradient(180deg, #04070a 0%, #071017 25%, #050a0f 50%, #071118 75%, #030609 100%);
+      background-attachment: fixed;
+      background-color: #04070a;
+    }
+
+    /* Fixed Background Animation Canvas */
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    canvas#animation-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: 0;
+      transition: opacity 0.35s ease-out;
+    }
+
+    canvas#animation-canvas.is-loaded {
+      opacity: 1;
+    }
+
+    /* Ambient glow that doesn't obstruct background animation */
+    .bg-main-radial {
+      background: radial-gradient(circle at 50% -10%, rgba(20, 184, 166, 0.22) 0%, rgba(13, 148, 136, 0.10) 35%, transparent 70%);
+    }
+
+    /* Extra Transparent Glassmorphism for Cards (Kolom Blur Transparan) */
+    .glass-card-transparent {
+      background: rgba(14, 14, 18, 0.38) !important;
+      backdrop-filter: blur(14px) saturate(120%);
+      -webkit-backdrop-filter: blur(14px) saturate(120%);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .glass-inner-transparent {
+      background: rgba(255, 255, 255, 0.03) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Interactive Card Zoom Transitions */
+    .project-card:hover .project-img {
+      transform: scale(1.04);
+    }
+
+    /* Text readability shadow */
+    .read-shadow {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Top Scroll Progress Bar */
+    #scroll-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3.5px;
+      width: 0%;
+      background: linear-gradient(90deg, #0d9488, #14b8a6, #2dd4bf, #00d2b4);
+      box-shadow: 0 0 14px rgba(45, 212, 191, 0.9), 0 0 4px rgba(20, 184, 166, 1);
+      z-index: 9999;
+      transition: width 0.08s linear;
+      pointer-events: none;
+    }
+
+    /* Scroll Reveal Initial and Triggered States */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal-on-scroll.reveal-left {
+      transform: translateX(-24px);
+    }
+
+    .reveal-on-scroll.reveal-right {
+      transform: translateX(24px);
+    }
+
+    .reveal-on-scroll.is-visible {
+      opacity: 1 !important;
+      transform: translate(0, 0) !important;
+    }
+
+    /* Stagger Delays */
+    .delay-75 { transition-delay: 75ms; }
+    .delay-100 { transition-delay: 100ms; }
+    .delay-150 { transition-delay: 150ms; }
+    .delay-200 { transition-delay: 200ms; }
+    .delay-225 { transition-delay: 225ms; }
+    .delay-250 { transition-delay: 250ms; }
+    .delay-300 { transition-delay: 300ms; }
+    .delay-350 { transition-delay: 350ms; }
+
+    /* Pulsing & Radar Ring for Video Play Button */
+    @keyframes radar-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 16px rgba(20, 184, 166, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+      }
+    }
+    .play-btn-pulse {
+      animation: radar-pulse 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    /* Floating badge animation */
+    @keyframes float-subtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    .animate-float-subtle {
+      animation: float-subtle 4s ease-in-out infinite;
+    }
+
+    /* Button Shimmer / Glow Swipe */
+    .btn-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -90%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.28) 50%,
+        transparent 100%
+      );
+      transform: rotate(25deg);
+      animation: shimmer-swipe 4.5s infinite ease-in-out;
+      pointer-events: none;
+    }
+    @keyframes shimmer-swipe {
+      0%, 65% { left: -90%; }
+      100% { left: 160%; }
+    }
+
+    /* Card Interactive Lift & Glow */
+    .hover-lift {
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .hover-lift:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px -15px rgba(20, 184, 166, 0.28), 0 0 0 1px rgba(20, 184, 166, 0.35);
+      }
+    }
+
+    /* Hero Load Entrance */
+    @keyframes hero-fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .hero-entrance {
+      animation: hero-fade-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Floating Back to Top button */
+    #back-to-top-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(18px) scale(0.9);
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #back-to-top-btn.is-active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Mobile Drawer Transitions */
+    #mobile-menu-drawer {
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+    #mobile-menu-drawer.drawer-closed {
+      transform: translateY(-12px);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #mobile-menu-drawer.drawer-open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="bg-transparent text-white font-sans antialiased selection:bg-teal-500 selection:text-white relative overflow-x-hidden min-h-screen">
+
+  <!-- Top Scroll Progress Bar -->
+  <div id="scroll-progress-bar"></div>
+
+  <!-- Floating Back to Top Button -->
+  <button id="back-to-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Kembali ke atas" class="w-11 h-11 sm:w-12 sm:h-12 rounded-full glass-card-transparent hover:bg-teal-500/20 border border-teal-500/40 text-teal-400 hover:text-white flex items-center justify-center shadow-2xl backdrop-blur-md transition-all hover:scale-110 active:scale-90 group cursor-pointer">
+    <svg class="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path d="M5 10l7-7m0 0l7 7m-7-7v18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+    </svg>
+  </button>
+
+  <!-- Background Animated Canvas (Fixed Position) -->
+  <div id="canvas-container">
+    <canvas id="animation-canvas"></canvas>
+  </div>
+
+  <!-- Ambient Light Dome & Subtle Glowing Elements -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] bg-main-radial pointer-events-none opacity-90 z-[1]"></div>
+  <div class="fixed top-1/4 -right-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none z-[1]"></div>
+  <div class="fixed bottom-1/3 -left-40 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none z-[1]"></div>
+
+  <!-- BEGIN: SiteWrapper -->
+  <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-6">
+    
+    <!-- BEGIN: MainHeader -->
+    <header class="w-full mb-4 sm:mb-6 hero-entrance relative z-40">
+      <nav class="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 rounded-2xl glass-card-transparent hover-lift">
+        <!-- Brand Wordmark -->
+        <a aria-label="Fahri Afifudin Home" class="flex items-center gap-2 group tracking-tight" href="#home">
+          <span class="text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-teal-400 transition-colors read-shadow">Fahri Afifudin</span>
+          <span class="w-2 h-2 rounded-full bg-teal-400 inline-block animate-pulse"></span>
+        </a>
+
+        <!-- Center Navigation Links (Desktop: md & up) -->
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-200">
+          <a class="hover:text-teal-300 transition-colors read-shadow relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-teal-400 hover:after:w-full after:transition-all after:duration-300" href="#home">Home</a>
+          <a class="hover:text-teal-300 transition-colors read-shadow relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-teal-400 hover:after:w-full after:transition-all after:duration-300" href="#experience">Experience</a>
+          <a class="hover:text-teal-300 transition-colors read-shadow relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-teal-400 hover:after:w-full after:transition-all after:duration-300" href="#projects">Projects</a>
+          <a class="hover:text-teal-300 transition-colors read-shadow relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-teal-400 hover:after:w-full after:transition-all after:duration-300" href="projects-responsive.html">View All</a>
+          <a class="hover:text-teal-300 transition-colors read-shadow relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-teal-400 hover:after:w-full after:transition-all after:duration-300" href="#contact">Contact</a>
+        </div>
+
+        <!-- Right Side: CTA Button + Mobile Hamburger Toggle -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
+          <!-- CTA Button (Mulai Kolaborasi) -->
+          <a class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-[11px] sm:text-sm font-semibold bg-[#14b8a6] hover:bg-[#2dd4bf] text-white transition-all duration-300 shadow-md shadow-teal-500/20 group btn-shimmer hover:scale-105 active:scale-95 whitespace-nowrap" href="https://wa.link/t7jcef" target="_blank" rel="noopener noreferrer">
+            <span>Mulai Kolaborasi</span>
+            <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-black/20 group-hover:bg-white/20 flex items-center justify-center transition-colors">
+              <svg class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+              </svg>
+            </span>
+          </a>
+
+          <!-- Mobile Hamburger Button (Visible on mobile & small tablet: < md) -->
+          <button id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Buka Menu Navigasi" class="md:hidden w-9 h-9 rounded-xl glass-inner-transparent hover:bg-white/10 flex items-center justify-center text-gray-200 hover:text-white transition-colors focus:outline-none">
+            <svg id="hamburger-icon" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+            <svg id="close-icon" class="w-5 h-5 hidden transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Mobile Navigation Drawer / Dropdown -->
+      <div id="mobile-menu-drawer" class="drawer-closed md:hidden absolute top-full left-0 right-0 mt-2 p-4 rounded-2xl glass-card-transparent shadow-2xl border border-white/10 z-50">
+        <div class="flex flex-col space-y-1 text-sm font-medium">
+          <a onclick="closeMobileMenu()" href="#home" class="px-4 py-2.5 rounded-xl hover:bg-teal-500/20 hover:text-teal-300 text-gray-200 transition-colors flex items-center justify-between">
+            <span>Home</span>
+            <span class="text-xs text-teal-400 font-mono">#01</span>
+          </a>
+          <a onclick="closeMobileMenu()" href="#experience" class="px-4 py-2.5 rounded-xl hover:bg-teal-500/20 hover:text-teal-300 text-gray-200 transition-colors flex items-center justify-between">
+            <span>Experience &amp; Tools</span>
+            <span class="text-xs text-teal-400 font-mono">#02</span>
+          </a>
+          <a onclick="closeMobileMenu()" href="#projects" class="px-4 py-2.5 rounded-xl hover:bg-teal-500/20 hover:text-teal-300 text-gray-200 transition-colors flex items-center justify-between">
+            <span>Projects Showcase</span>
+            <span class="text-xs text-teal-400 font-mono">#03</span>
+          </a>
+          <a onclick="closeMobileMenu()" href="projects-responsive.html" class="px-4 py-2.5 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 transition-colors flex items-center justify-between font-semibold">
+            <span>View All Projects (14)</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          </a>
+          <a onclick="closeMobileMenu()" href="#contact" class="px-4 py-2.5 rounded-xl hover:bg-teal-500/20 hover:text-teal-300 text-gray-200 transition-colors flex items-center justify-between">
+            <span>Contact &amp; Social</span>
+            <span class="text-xs text-teal-400 font-mono">#04</span>
+          </a>
+          <div class="pt-2 border-t border-white/10 mt-2">
+            <a href="https://wa.link/t7jcef" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 rounded-xl bg-teal-500 text-white font-semibold flex items-center justify-center gap-2 text-center text-xs btn-shimmer">
+              <span>Mulai Kolaborasi WhatsApp</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- END: MainHeader -->
+
+    <!-- BEGIN: HeroSection -->
+    <section class="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden mt-1 px-4 sm:px-6 pt-3 sm:pt-4 pb-6 sm:pb-8 min-h-[calc(100vh-115px)] sm:min-h-[calc(100vh-125px)] flex flex-col justify-between" id="home">
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center my-auto py-3 sm:py-4">
+        
+        <!-- Left: Hero Headline -->
+        <div class="flex flex-col justify-center order-1 lg:col-span-7 z-20 hero-entrance">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full bg-teal-500/10 border border-teal-500/25 text-teal-300 text-[11px] sm:text-xs font-semibold mb-4 sm:mb-6 w-fit backdrop-blur-md">
+            <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+            Tersedia untuk projek &amp; kolaborasi freelance
+          </div>
+          <!-- Fluid Responsive Typography for Mobile, Tablet, and Desktop -->
+          <h1 class="text-5xl xs:text-6xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-white leading-[0.98] read-shadow">
+            Creative<br><span class="text-white">Editor</span><span class="text-teal-400 inline-block ml-1">.</span>
+          </h1>
+        </div>
+
+        <!-- Right: Bio Card -->
+        <div class="flex flex-col justify-center items-start lg:items-end order-2 lg:col-span-5 z-20 hero-entrance delay-150">
+          <div class="p-5 sm:p-6 rounded-3xl glass-card-transparent max-w-full sm:max-w-[340px] w-full hover-lift">
+            <h2 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-snug mb-2 sm:mb-2.5 read-shadow">Hi, I'm Fahri Afifudin</h2>
+            <p class="text-xs sm:text-[13px] text-neutral-200 font-normal leading-relaxed read-shadow">
+              Menghadirkan narasi visual yang berdampak dan pengalaman digital yang berkarakter. Berdedikasi dalam eksplorasi kreatif, estetika visual modern, serta desain yang presisi untuk setiap karya.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Subhero Badges -->
+      <div class="relative z-20 mt-auto pt-4 sm:pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-3 sm:gap-6 mx-auto w-full max-w-2xl hero-entrance delay-300 animate-float-subtle">
+        <div class="flex items-center gap-2.5 sm:gap-3.5 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full glass-card-transparent hover-lift hover:border-teal-500/40 hover:bg-white/[0.08] transition-all duration-300 group cursor-default">
+          <span class="px-2 sm:px-2.5 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-[10px] sm:text-xs font-mono font-bold text-teal-300">#01</span>
+          <span class="text-xs sm:text-base font-bold text-white tracking-wide group-hover:text-teal-300 transition-colors read-shadow">Desain Grafis</span>
+          <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-teal-400 animate-pulse ml-0.5 sm:ml-1"></span>
+        </div>
+        <div class="flex items-center gap-2.5 sm:gap-3.5 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full glass-card-transparent hover-lift hover:border-teal-500/40 hover:bg-white/[0.08] transition-all duration-300 group cursor-default">
+          <span class="px-2 sm:px-2.5 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-[10px] sm:text-xs font-mono font-bold text-teal-300">#02</span>
+          <span class="text-xs sm:text-base font-bold text-white tracking-wide group-hover:text-teal-300 transition-colors read-shadow">Video Editing</span>
+          <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-teal-400 animate-pulse ml-0.5 sm:ml-1"></span>
+        </div>
+      </div>
+    </section>
+    <!-- END: HeroSection -->
+
+    <!-- BEGIN: EducationAndExperienceSection -->
+    <section class="mt-14 sm:mt-20 mb-16 sm:mb-24 pt-4 sm:pt-8" id="experience">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-start">
+        
+        <!-- Left Column: Pendidikan, Alat Editing & Stats -->
+        <div class="lg:col-span-5 flex flex-col gap-6 sm:gap-8">
+          
+          <!-- Pendidikan Card -->
+          <div class="p-5 sm:p-7 rounded-3xl glass-card-transparent relative overflow-hidden group reveal-on-scroll reveal-left hover-lift">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl group-hover:bg-teal-500/25 transition-all pointer-events-none"></div>
+            <span class="text-xs font-bold tracking-wider uppercase text-teal-400 mb-2 block">Background</span>
+            <h3 class="text-lg sm:text-2xl font-bold text-white mb-3 sm:mb-4 read-shadow">Pendidikan</h3>
+            <div class="p-3.5 sm:p-4 rounded-2xl glass-inner-transparent group-hover:border-teal-500/30 transition-all">
+              <p class="text-sm sm:text-base font-semibold text-white leading-relaxed read-shadow">
+                S1 Prodi HES FAI
+              </p>
+              <p class="text-sm sm:text-base font-bold text-teal-300 mt-1 read-shadow">
+                Universitas Muhammadiyah Surakarta
+              </p>
+              <div class="inline-flex items-center gap-1.5 mt-2.5 sm:mt-3 px-2.5 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-[11px] sm:text-xs font-medium text-teal-300">
+                <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                2024 - Sekarang
+              </div>
+            </div>
+          </div>
+
+          <!-- Alat Editing Card -->
+          <div class="p-5 sm:p-7 rounded-3xl glass-card-transparent reveal-on-scroll reveal-left delay-100 hover-lift">
+            <span class="text-xs font-bold tracking-wider uppercase text-teal-400 mb-2 block">Creative Software</span>
+            <h3 class="text-lg sm:text-2xl font-bold text-white mb-4 sm:mb-5 read-shadow">Alat Editing</h3>
+            <div class="grid grid-cols-2 gap-2.5 sm:gap-3.5">
+              
+              <!-- Tool 1: CapCut -->
+              <div class="p-2.5 sm:p-3.5 rounded-2xl glass-inner-transparent hover:border-teal-500/50 hover:bg-white/[0.08] transition-all flex items-center gap-2.5 sm:gap-3 group hover-lift cursor-default">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-teal-500/50 transition-colors overflow-hidden">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBULJUWhc0yvXB1XSJPsnOJjzjYDHVaLcKNCS9dW0hOCQaUoTr4LHv3jnD07ty8dMv-jO1w7JhvRsdijYvmx_oMgovIoW_RXzL_ZwAMRD9X4CaMRJZkOqTt1XD9F0yxMSpPLqDW52pwXyQyco8DbBJKIDKG5OVb85fJOohREraHUVEqVd5HrCVXFFSQbBkQ_dau7bUnb6Ulan6iKMBTNfoqFKdxuQstWNksLqMKA52T3wjMxhte2UPkBUJqWxLDA2I" alt="CapCut Logo" class="w-full h-full object-contain p-1 rounded-lg group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                </div>
+                <div class="overflow-hidden">
+                  <div class="text-xs sm:text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate read-shadow">CapCut</div>
+                  <div class="text-[10px] sm:text-[11px] text-gray-300 truncate">Video Editing</div>
+                </div>
+              </div>
+
+              <!-- Tool 2: Figma -->
+              <div class="p-2.5 sm:p-3.5 rounded-2xl glass-inner-transparent hover:border-teal-500/50 hover:bg-white/[0.08] transition-all flex items-center gap-2.5 sm:gap-3 group hover-lift cursor-default">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-teal-500/50 transition-colors overflow-hidden">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXLzzmF12c1D-a8jm7fOQeAhExxY8GjC01YoftSG7FwKY-LIuGAd0bEBl4rb4-8dtw5GMX88crKbE-8SzNrQohdwQbs7PV-T-VaQiZz3M0Eq1OkAym2waaIxjHcn04L_bc7TB81s7ISHOtvBS8sbtxvfPzC3J-XSFnWCM7C9zIHsGJExcqgwF6Fu88yolCU5_G6tsusSEbRcfgE8Ze1qfu8V9Ua2BbYrGGSS3Y9AlpTp58uZ9z5mzm66R20_290Gg" alt="Figma" class="w-full h-full object-contain p-1 rounded-xl group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
+                </div>
+                <div class="overflow-hidden">
+                  <div class="text-xs sm:text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate read-shadow">Figma</div>
+                  <div class="text-[10px] sm:text-[11px] text-gray-300 truncate">UI / Layout</div>
+                </div>
+              </div>
+
+              <!-- Tool 3: Canva -->
+              <div class="p-2.5 sm:p-3.5 rounded-2xl glass-inner-transparent hover:border-teal-500/50 hover:bg-white/[0.08] transition-all flex items-center gap-2.5 sm:gap-3 group hover-lift cursor-default">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-teal-500/50 transition-colors overflow-hidden">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4xouY__2pyGTMtDLh39kFyqhBoUszlpDLg3LmRLYrrqhExM2EtUncliJD94jLAWhDK09BeoEotiDFhonwqjYJk8CRS7g9mVWWdn1Aodc5SgXNbEgqGzPNTmJEQYyUBhtrkWdAxnZ6Pnme_bn2NoKeLVkWUx0oQpwKpA9_Oc2zR56mY5TvkzZ3xPQgpS9ydgVbsaJqATPm6XvkJKkPXIg8jv9hEmRVAXGIBKBGHma02pHqnLBg8oJJ0X9Z17KrFek" alt="Canva" class="w-full h-full object-cover rounded-xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+                </div>
+                <div class="overflow-hidden">
+                  <div class="text-xs sm:text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate read-shadow">Canva</div>
+                  <div class="text-[10px] sm:text-[11px] text-gray-300 truncate">Design &amp; Asset</div>
+                </div>
+              </div>
+
+              <!-- Tool 4: Pixellab -->
+              <div class="p-2.5 sm:p-3.5 rounded-2xl glass-inner-transparent hover:border-teal-500/50 hover:bg-white/[0.08] transition-all flex items-center gap-2.5 sm:gap-3 group hover-lift cursor-default">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-teal-500/50 transition-colors overflow-hidden">
+                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCinJ1j65JFcZ73ILNeokFpLNNB2pjWdpa7SN2ZCTiNBXMVbTkkoWXWBSz02D9ijpkyyJB7AoqIvMMqx1bD4UuVpa9gC-PKwxvUiZJN3EVnWGZ6cVZH_ngiAyNO1kMXmSPDcXxsI6m5PrLKZTSwJZrOsULuX-Q1_jMvqtv_DMIWdE_p5QAUk-u2UF67Pv1pe_6-K9yaYYAW9wuSUZWz1jHg6EUi8ICvT6x_u5hszbF3Hj6S3TqN5k_Ij9uTNfPRt9E" alt="Pixellab" class="w-full h-full object-cover rounded-xl group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
+                </div>
+                <div class="overflow-hidden">
+                  <div class="text-xs sm:text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate read-shadow">Pixellab</div>
+                  <div class="text-[10px] sm:text-[11px] text-gray-300 truncate">Design</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Stats Cards with Thin Dividers & Animated Counters -->
+          <div class="p-4 sm:p-6 rounded-3xl glass-card-transparent grid grid-cols-3 divide-x divide-white/[0.08] text-center reveal-on-scroll reveal-left counter-trigger delay-200 hover-lift">
+            <div class="px-1 sm:px-2">
+              <div class="text-xl sm:text-3xl font-extrabold text-white tracking-tight read-shadow" data-counter-target="2022">2022</div>
+              <div class="text-[10px] sm:text-xs text-gray-300 font-medium mt-1 leading-tight sm:leading-snug">Tahun Mulai</div>
+            </div>
+            <div class="px-1 sm:px-2">
+              <div class="text-xl sm:text-3xl font-extrabold text-teal-400 tracking-tight read-shadow" data-counter-target="7" data-counter-suffix="+">7+</div>
+              <div class="text-[10px] sm:text-xs text-gray-300 font-medium mt-1 leading-tight sm:leading-snug">Pengalaman Organisasi</div>
+            </div>
+            <div class="px-1 sm:px-2">
+              <div class="text-sm sm:text-lg font-bold text-white tracking-tight mt-0.5 sm:mt-1 read-shadow">Aktif &amp;</div>
+              <div class="text-[10px] sm:text-xs text-teal-400 font-semibold leading-tight sm:leading-snug">Produktif</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Pengalaman di Dunia Kreatif -->
+        <div class="lg:col-span-7 p-5 sm:p-8 rounded-3xl glass-card-transparent flex flex-col justify-between reveal-on-scroll reveal-right delay-100 hover-lift">
+          <div class="mb-5 sm:mb-6">
+            <span class="text-xs font-bold tracking-wider uppercase text-teal-400 mb-2 block">Track Record</span>
+            <h3 class="text-xl sm:text-3xl font-extrabold text-white tracking-tight read-shadow">Pengalaman di Dunia Kreatif</h3>
+            <p class="text-xs sm:text-sm text-gray-300 mt-2 read-shadow">Perjalanan aktif dan dedikasi dalam ekosistem kreatif, kepengurusan, dan edukasi visual.</p>
+          </div>
+          
+          <!-- Experience Items List -->
+          <div class="flex flex-col divide-y divide-white/[0.08]">
+            
+            <!-- Item 1 -->
+            <div class="py-3.5 sm:py-4 first:pt-0 last:pb-0 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-75">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">RUANG EDIT</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">Member Aktif Ruang Edit</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2022</span>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="py-3.5 sm:py-4 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-100">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">GRUB VISUAL EDITING INDONESIA</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">DIVISI CREMED di VEI</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2024</span>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="py-3.5 sm:py-4 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-150">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">GRUB VISUAL EDITING INDONESIA</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">Karya Terbaik Manipulation Editing</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2024</span>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="py-3.5 sm:py-4 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-200">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">ADMIN KOMUNITAS EDITING (SCA)</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">DIVISI PDD</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2025</span>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="py-3.5 sm:py-4 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-250">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">IMM ABDUH FAI UMS</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">Ketua Bidang MEDKOM</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2026</span>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="py-3.5 sm:py-4 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-300">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">SEMINAR VIDIO EDITING</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">Pembicara di SEMINAR kampus Institut Islam Mambaul Ulum</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2026</span>
+            </div>
+
+            <!-- Item 7 -->
+            <div class="py-3.5 sm:py-4 flex items-start justify-between gap-3 sm:gap-4 group hover:bg-white/[0.02] px-1 sm:px-2 rounded-xl transition-colors reveal-on-scroll delay-350">
+              <div class="flex items-start gap-2.5 sm:gap-3">
+                <span class="w-6 h-6 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-teal-500 group-hover:text-white group-hover:scale-110 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                  </svg>
+                </span>
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white group-hover:text-teal-400 transition-colors read-shadow">SEMINAR MEDKOM DESIGN TRAINING</h4>
+                  <p class="text-[11px] sm:text-sm text-teal-300 font-medium mt-0.5">Pembicara di SEMINAR Mahasiswa Pecinta Al-Quran</p>
+                </div>
+              </div>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/[0.06] text-gray-200 border border-white/[0.08] shrink-0 group-hover:border-teal-500/40 transition-colors">2026</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <!-- END: EducationAndExperienceSection -->
+
+    <!-- BEGIN: PortfolioSection -->
+    <section class="mt-14 sm:mt-20" id="projects">
+      <!-- Section Header -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-end mb-8 sm:mb-12 reveal-on-scroll reveal-left">
+        <div class="lg:col-span-7">
+          <span class="text-xs sm:text-sm font-bold tracking-wider uppercase text-teal-400 mb-2 sm:mb-3 block">
+            Kumpulan portfolio
+          </span>
+          <h2 class="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight read-shadow">
+            Projek Design &amp; Video
+          </h2>
+        </div>
+        <div class="lg:col-span-5 flex flex-col items-start lg:items-end justify-between space-y-4">
+          <div class="flex items-center gap-4 pt-1 sm:pt-2">
+            <a class="inline-flex items-center gap-2.5 px-5 py-3 sm:px-7 sm:py-4 rounded-full text-xs sm:text-base font-semibold bg-[#14b8a6] hover:bg-[#2dd4bf] text-white transition-all duration-300 shadow-xl shadow-teal-500/20 group btn-shimmer hover:scale-105 active:scale-95" href="projects-responsive.html">
+              <span class="tracking-wide">View all</span>
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-Column Mobile, 4-Column Desktop Visual Gallery -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        
+        <!-- Project Card 1: Pamflet ISC 2026 -->
+        <article class="project-card group cursor-pointer glass-card-transparent rounded-2xl sm:rounded-3xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 reveal-on-scroll delay-75 hover-lift">
+          <div class="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-neutral-900/50 relative">
+            <img alt="Pamflet Pendaftaran ISC 2026" class="project-img w-full h-full object-cover transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6D_XyVMQCE2Sz03BUeRmVZjY5vuvZaLJAivb7D9aSKEdApLxWT9H5I9LRSHmfjnywpU0kmkesBarMrW4rW6KcrUWz9XVwLCUhfjjiwLsdlPkNHOx1TfREq8rDNqrl0buh__lhf6-wDi-i9ikAdIecFqCL1wf2-Y-GGszg82nYeYolf_jQLfCxg3PklJcL-JO4doodzQW5y2Mba5DW7pAentG8MyRSGZFyRK-BeZfWopmONNqHfl9MBu229cWmbwA">
+            <!-- Subtle permanent gradient on mobile so text is legible -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent p-3 sm:p-5 flex flex-col justify-end">
+              <span class="text-[10px] sm:text-xs uppercase tracking-wider text-teal-300 font-semibold mb-0.5 sm:mb-1">Poster #01</span>
+              <h3 class="text-xs sm:text-base font-bold text-white line-clamp-2">ISC 2026 Registration</h3>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project Card 2: Abduh Got Talent -->
+        <article class="project-card group cursor-pointer glass-card-transparent rounded-2xl sm:rounded-3xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 reveal-on-scroll delay-150 hover-lift">
+          <div class="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-neutral-900/50 relative">
+            <img alt="Pamflet Abduh Got Talent" class="project-img w-full h-full object-cover transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUr3ZNTfx7QwPLOVqorWfDh2iEQQVhLSJO7K5oQselo67ZRyZ4uu4bSqH74-sAS5YG9D54eJYHOxkRsy9vymmsrjUhZMkweMr38vfCNuMnxcI-woqQNSIZwRIMAQPhZUnzZ5lB3V9hoQbvqvSSRs7niGyyw4Fh1Cud8Djty_-gbv8UbZmP7aCDXBUx2vvWjrgM5n-BSE8KyDURaWSDccAJr2fKIv1h0TveAmbAnMY18qc_SLkD1fwvF5oiz_EwXw0">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent p-3 sm:p-5 flex flex-col justify-end">
+              <span class="text-[10px] sm:text-xs uppercase tracking-wider text-teal-300 font-semibold mb-0.5 sm:mb-1">Event #02</span>
+              <h3 class="text-xs sm:text-base font-bold text-white line-clamp-2">Abduh Got Talent</h3>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project Card 3: Lomba ISC XVI -->
+        <article class="project-card group cursor-pointer glass-card-transparent rounded-2xl sm:rounded-3xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 reveal-on-scroll delay-225 hover-lift">
+          <div class="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-neutral-900/50 relative">
+            <img alt="Feed Lomba ISC XVI" class="project-img w-full h-full object-cover transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYi3bJF4BulJPOiLOXWZZ9jJ2zqvUr_gospMZGWBJVnSSOSSF3CKDDfqEuLu0II6nE3CMynVYo218fAkPNybo7nGM98E9eXo9-3F_kvmTGEj3s-3dIqty_JIA7AwwZwoUN8K003GVAUgDmmBlGx218f7R9Mxd2kTLh5ybflp1Kfn1oc-QguPE06awPB0YOQ8e6Z8ai503IYDIt5wfEN28kUmbexBj_Jw_BFa5jUT3ICnZKzSciC-yIURdJt-U_FXI">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent p-3 sm:p-5 flex flex-col justify-end">
+              <span class="text-[10px] sm:text-xs uppercase tracking-wider text-teal-300 font-semibold mb-0.5 sm:mb-1">Feed #03</span>
+              <h3 class="text-xs sm:text-base font-bold text-white line-clamp-2">Lomba-Lomba ISC XVI</h3>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project Card 4: Dress Code Masta IMM -->
+        <article class="project-card group cursor-pointer glass-card-transparent rounded-2xl sm:rounded-3xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 reveal-on-scroll delay-300 hover-lift">
+          <div class="aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-neutral-900/50 relative">
+            <img alt="Pamflet Dress Code Masta IMM" class="project-img w-full h-full object-cover transition-transform duration-500 ease-out" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiAQ1yIF-VwJHXc0Wa4S6r05QzsYkmI_TbiLRo52wCHt5idJ7DJRUUTXg1pv-LeFq71JKEXJI0yqy--hVaa3hjFHd-eCazWGzD0fwkUS02gmxp9xCHMq7P-WrG-anJ1vykTIOW6zrfzCptd7R9Yz5YQtY_vb8h5zqFRgzENcn8JUyVs2iOQSGCki0SZSMA2P16ieGC4SCnUV_4kWi4Rq5VlMvs5L752Q0LjCtxNmZ_b6m54FAxXuFyEh2hvRp7-_k">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent p-3 sm:p-5 flex flex-col justify-end">
+              <span class="text-[10px] sm:text-xs uppercase tracking-wider text-teal-300 font-semibold mb-0.5 sm:mb-1">Media #04</span>
+              <h3 class="text-xs sm:text-base font-bold text-white line-clamp-2">Dress Code Masta IMM</h3>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Video / Motion Showreel Cards -->
+      <div class="mt-6 sm:mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-8">
+          
+          <!-- Video 1: Pancasila Sebagai Ideologi Negara -->
+          <div class="project-card group cursor-pointer relative glass-card-transparent rounded-2xl sm:rounded-3xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 shadow-xl reveal-on-scroll delay-100 hover-lift" id="video-card-1" onclick="playVideo1()">
+            <div class="aspect-video w-full relative overflow-hidden bg-neutral-900/80" id="video-container-1">
+              <!-- Thumbnail & Ambient Background -->
+              <div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 ease-out" style="background-image: radial-gradient(circle at center, rgba(20, 184, 166, 0.25) 0%, rgba(10, 10, 14, 0.85) 100%), url('https://img.youtube.com/vi/wDOUuwOG2HE/hqdefault.jpg');"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              
+              <!-- Badge -->
+              <div class="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
+                <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/60 border border-white/10 text-[10px] sm:text-xs font-mono font-medium text-teal-300 backdrop-blur-md">
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>YouTube
+                </span>
+              </div>
+              
+              <!-- Play Button with Radar Pulse -->
+              <div class="absolute inset-0 flex items-center justify-center z-10">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white flex items-center justify-center group-hover:scale-110 group-hover:bg-[#14b8a6] group-hover:border-teal-400 group-hover:text-white transition-all duration-300 shadow-2xl play-btn-pulse">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                </div>
+              </div>
+              
+              <!-- Title -->
+              <div class="absolute bottom-0 inset-x-0 p-4 sm:p-6 z-10">
+                <h3 class="text-base sm:text-xl font-bold text-white group-hover:text-teal-300 transition-colors read-shadow">Pancasila Sebagai Ideologi Negara</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video 2: Bahayanya Merokok -->
+          <div class="project-card group cursor-pointer relative glass-card-transparent rounded-2xl sm:rounded-3xl overflow-hidden hover:border-teal-500/50 transition-all duration-300 shadow-xl reveal-on-scroll delay-200 hover-lift" id="video-card-2" onclick="playVideo2()">
+            <div class="aspect-video w-full relative overflow-hidden bg-neutral-900/80" id="video-container-2">
+              <!-- Thumbnail & Ambient Background -->
+              <div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 ease-out" style="background-image: radial-gradient(circle at center, rgba(20, 184, 166, 0.25) 0%, rgba(10, 10, 14, 0.85) 100%), url('https://img.youtube.com/vi/8kzUj2KhaBI/hqdefault.jpg');"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              
+              <!-- Badge -->
+              <div class="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
+                <span class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/60 border border-white/10 text-[10px] sm:text-xs font-mono font-medium text-teal-300 backdrop-blur-md">
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>YouTube
+                </span>
+              </div>
+              
+              <!-- Play Button with Radar Pulse -->
+              <div class="absolute inset-0 flex items-center justify-center z-10">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white flex items-center justify-center group-hover:scale-110 group-hover:bg-[#14b8a6] group-hover:border-teal-400 group-hover:text-white transition-all duration-300 shadow-2xl play-btn-pulse">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                </div>
+              </div>
+              
+              <!-- Title -->
+              <div class="absolute bottom-0 inset-x-0 p-4 sm:p-6 z-10">
+                <h3 class="text-base sm:text-xl font-bold text-white group-hover:text-teal-300 transition-colors read-shadow">Bahayanya Merokok</h3>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+    <!-- END: PortfolioSection -->
+
+    <!-- BEGIN: FooterSection -->
+    <footer id="contact" class="mt-16 sm:mt-20 text-neutral-300 reveal-on-scroll hover-lift">
+      <div class="p-6 sm:p-10 rounded-3xl glass-card-transparent">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12">
+          
+          <!-- Col 1: Bio -->
+          <div class="space-y-3 sm:space-y-4 reveal-on-scroll delay-75">
+            <div class="flex items-center gap-1.5 text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <span class="tracking-tight text-white read-shadow">Fahri Afifudin</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-teal-400 inline-block animate-pulse"></span>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-neutral-200 leading-snug read-shadow">
+              Menghadirkan narasi visual yang berdampak dan pengalaman digital yang berkarakter.
+            </p>
+            <p class="text-xs text-neutral-300 leading-relaxed read-shadow">
+              Berdedikasi dalam eksplorasi kreatif, estetika visual modern, serta desain yang presisi untuk setiap karya.
+            </p>
+          </div>
+
+          <!-- Col 2: Navigasi -->
+          <div class="reveal-on-scroll delay-150">
+            <h4 class="text-xs sm:text-sm uppercase tracking-wider font-semibold text-teal-400 mb-3 sm:mb-4">Informasi</h4>
+            <ul class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
+              <li><a href="#home" class="hover:text-teal-300 transition-colors inline-block hover:translate-x-1 duration-200">Home</a></li>
+              <li><a href="#experience" class="hover:text-teal-300 transition-colors inline-block hover:translate-x-1 duration-200">Experience</a></li>
+              <li><a href="#projects" class="hover:text-teal-300 transition-colors inline-block hover:translate-x-1 duration-200">Projects</a></li>
+              <li><a href="projects-responsive.html" class="hover:text-teal-300 transition-colors inline-block hover:translate-x-1 duration-200 font-semibold text-teal-300">View All Projects (14)</a></li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Kontak & Sosial -->
+          <div class="reveal-on-scroll delay-200">
+            <h4 class="text-xs sm:text-sm uppercase tracking-wider font-semibold text-teal-400 mb-3 sm:mb-4">Kontak &amp; Sosial</h4>
+            <ul class="space-y-2.5 text-xs sm:text-sm">
+              <li>
+                <a href="https://wa.me/6281392680936" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 text-neutral-300 hover:text-teal-300 transition-all hover:translate-x-1 duration-200 group">
+                  <span class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/20 group-hover:border-teal-400 group-hover:text-white group-hover:scale-110 transition-all">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.72 4.31 3.81.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.3z"/>
+                    </svg>
+                  </span>
+                  <span class="font-medium">+62 813-9268-0936</span>
+                </a>
+              </li>
+              <li>
+                <a href="mailto:fahriafifudin01@gmail.com" class="flex items-center gap-2.5 text-neutral-300 hover:text-teal-300 transition-all hover:translate-x-1 duration-200 group">
+                  <span class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/20 group-hover:border-teal-400 group-hover:text-white transition-all">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                  </span>
+                  <span class="font-medium break-all">fahriafifudin01@gmail.com</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com/this.fahri?cplk=MXZ3bDF4MjR0MmQ1ZA==" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 text-neutral-300 hover:text-teal-300 transition-all hover:translate-x-1 duration-200 group">
+                  <span class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/20 group-hover:border-teal-400 group-hover:text-white transition-all">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                  </span>
+                  <span class="font-medium">this.fahri</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.tiktok.com/@bangsssrii?_r=1&_t=ZS-9AcxEQEsCf6" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 text-neutral-300 hover:text-teal-300 transition-all hover:translate-x-1 duration-200 group">
+                  <span class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/20 group-hover:border-teal-400 group-hover:text-white transition-all">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.11V9.4a6.33 6.33 0 0 0-5.06.63 6.34 6.34 0 0 0 3.1 11.97 6.34 6.34 0 0 0 6.34-6.34V8.67a8.28 8.28 0 0 0 4.87 1.58v-3.56z"/>
+                    </svg>
+                  </span>
+                  <span class="font-medium">bangsssrii</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://youtube.com/@fahrixmutqin?si=2famnuo7r_zV1ey0" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 text-neutral-300 hover:text-teal-300 transition-all hover:translate-x-1 duration-200 group">
+                  <span class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/20 group-hover:border-teal-400 group-hover:text-white transition-all">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                  </span>
+                  <span class="font-medium">Fahrixmutqin</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://pin.it/2Yv4zoIYy" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 text-neutral-300 hover:text-teal-300 transition-all hover:translate-x-1 duration-200 group">
+                  <span class="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:bg-teal-500/20 group-hover:border-teal-400 group-hover:text-white transition-all">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146 1.124.347 2.317.535 3.554.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                    </svg>
+                  </span>
+                  <span class="font-medium">pinterest</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Col 4: Feedback Form -->
+          <div class="reveal-on-scroll delay-250">
+            <h4 class="text-sm sm:text-base font-semibold text-white mb-1.5 sm:mb-2 read-shadow">Saran dan Masukan</h4>
+            <p class="text-xs text-neutral-300 mb-3 sm:mb-4 leading-relaxed">
+              <span style="font-size: 12px;"><i>Bantu saya berkembang dengan memberikan saran atau ide menarik untuk proyek-proyek selanjutnya</i></span>
+            </p>
+            <form onsubmit="event.preventDefault(); sendFeedbackToWA('feedback-msg');" class="flex flex-col">
+              <input id="feedback-msg" type="text" placeholder="Masukan pesan anda" class="bg-black/40 text-white placeholder-neutral-400 rounded-xl px-4 py-3 text-sm w-full outline-none border border-white/10 focus:border-teal-400 transition-colors" required>
+              <button type="submit" class="bg-[#14b8a6] hover:bg-[#2dd4bf] text-white font-semibold px-5 py-3 rounded-xl transition duration-200 text-sm mt-3 w-full shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 text-center btn-shimmer hover:scale-[1.02] active:scale-95">
+                <span>Kirim</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </footer>
+    <!-- END: FooterSection -->
+
+  </div>
+  <!-- END: SiteWrapper -->
+
+  <!-- Background Smooth Scroll Image Sequence Script -->
+  <script>
+    const FRAME_COUNT = 120;
+    const START_FRAME = 14; // Skip first 14 static frames, start from frame 15
+    const FRAME_FOLDER = 'ezgif-4bf622ffa3bd9a28-jpg';
+    
+    const getFrameUrl = (index) => {
+      const paddedNumber = String(index).padStart(3, '0');
+      return `${FRAME_FOLDER}/ezgif-frame-${paddedNumber}.jpg`;
+    };
+
+    const canvas = document.getElementById('animation-canvas');
+    const ctx = canvas.getContext('2d', { alpha: true });
+
+    const images = new Array(FRAME_COUNT);
+    let targetFrame = START_FRAME;
+    let currentFrame = START_FRAME;
+    let lastRenderedFrame = -1;
+    let isResized = true;
+
+    // Retina / High-DPI canvas sizing
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      isResized = true;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Scale to cover canvas while preserving aspect ratio
+    function drawCoverImage(img) {
+      if (!img || !img.complete || img.naturalWidth === 0) return false;
+
+      const cw = canvas.width;
+      const ch = canvas.height;
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+
+      const ratio = Math.max(cw / iw, ch / ih);
+      const nw = iw * ratio;
+      const nh = ih * ratio;
+      const ox = (cw - nw) * 0.5;
+      const oy = (ch - nh) * 0.5;
+
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.drawImage(img, ox, oy, nw, nh);
+      if (!canvas.classList.contains('is-loaded')) {
+        canvas.classList.add('is-loaded');
+      }
+      return true;
+    }
+
+    function render(frameIdx) {
+      const clamped = Math.max(0, Math.min(FRAME_COUNT - 1, frameIdx));
+      const img = images[clamped];
+      if (img && img.complete && img.naturalWidth !== 0) {
+        return drawCoverImage(img);
+      } else {
+        // Fallback to nearest loaded frame
+        for (let offset = 1; offset < FRAME_COUNT; offset++) {
+          const prev = images[clamped - offset];
+          if (prev && prev.complete && prev.naturalWidth !== 0) {
+            return drawCoverImage(prev);
+          }
+          const next = images[clamped + offset];
+          if (next && next.complete && next.naturalWidth !== 0) {
+            return drawCoverImage(next);
+          }
+        }
+      }
+      return false;
+    }
+
+    // Scroll Progress Calculation
+    function updateTargetFrame() {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPos = window.scrollY || window.pageYOffset;
+      const progress = maxScroll > 0 ? Math.min(Math.max(scrollPos / maxScroll, 0), 1) : 0;
+      targetFrame = START_FRAME + progress * (FRAME_COUNT - 1 - START_FRAME);
+    }
+
+    window.addEventListener('scroll', updateTargetFrame, { passive: true });
+
+    // Smooth Lerp Animation Loop
+    function animationLoop() {
+      const ease = 0.12;
+      currentFrame += (targetFrame - currentFrame) * ease;
+
+      if (Math.abs(targetFrame - currentFrame) < 0.005) {
+        currentFrame = targetFrame;
+      }
+
+      const frameToDraw = Math.round(currentFrame);
+
+      if (frameToDraw !== lastRenderedFrame || isResized) {
+        const drew = render(frameToDraw);
+        if (drew) {
+          lastRenderedFrame = frameToDraw;
+          isResized = false;
+        }
+      }
+
+      requestAnimationFrame(animationLoop);
+    }
+
+    // Preload START_FRAME first for instant visibility
+    const startImg = new Image();
+    startImg.src = getFrameUrl(START_FRAME + 1);
+
+    function onFirstFrameReady() {
+      canvas.classList.add('is-loaded');
+      const drew = render(Math.round(currentFrame));
+      if (drew) {
+        lastRenderedFrame = Math.round(currentFrame);
+      }
+    }
+
+    if (startImg.complete && startImg.naturalWidth !== 0) {
+      onFirstFrameReady();
+    } else {
+      startImg.onload = onFirstFrameReady;
+    }
+
+    startImg.onerror = () => {
+      console.warn("Folder 'ezgif-4bf622ffa3bd9a28-jpg' tidak ditemukan di server. Background menggunakan gradasi warna tosca.");
+    };
+    images[START_FRAME] = startImg;
+
+    // Preload remaining frames
+    for (let i = 0; i < FRAME_COUNT; i++) {
+      if (i === START_FRAME) continue;
+      const img = new Image();
+      img.src = getFrameUrl(i + 1);
+      img.onload = () => {
+        if (lastRenderedFrame === -1) {
+          const drew = render(Math.round(currentFrame));
+          if (drew) lastRenderedFrame = Math.round(currentFrame);
+        }
+      };
+      images[i] = img;
+    }
+
+    updateTargetFrame();
+    requestAnimationFrame(animationLoop);
+
+    // YouTube Video Player for Video 1 (Pancasila Sebagai Ideologi Negara)
+    function playVideo1() {
+      const container = document.getElementById('video-container-1');
+      const card = document.getElementById('video-card-1');
+      if (!container) return;
+
+      container.innerHTML = `
+        <iframe 
+          class="w-full h-full absolute inset-0 rounded-2xl" 
+          src="https://www.youtube.com/embed/wDOUuwOG2HE?autoplay=1&si=-ZAwI2d_szT8leB6" 
+          title="YouTube video player - Pancasila Sebagai Ideologi Negara" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" 
+          allowfullscreen>
+        </iframe>
+      `;
+      if (card) {
+        card.removeAttribute('onclick');
+        card.classList.remove('cursor-pointer');
+      }
+    }
+
+    // YouTube Video Player for Video 2 (Bahayanya Merokok)
+    function playVideo2() {
+      const container = document.getElementById('video-container-2');
+      const card = document.getElementById('video-card-2');
+      if (!container) return;
+
+      container.innerHTML = `
+        <iframe 
+          class="w-full h-full absolute inset-0 rounded-2xl" 
+          src="https://www.youtube.com/embed/8kzUj2KhaBI?autoplay=1&si=O4R6ctk1QvNflJGA" 
+          title="YouTube video player - Bahayanya Merokok" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" 
+          allowfullscreen>
+        </iframe>
+      `;
+      if (card) {
+        card.removeAttribute('onclick');
+        card.classList.remove('cursor-pointer');
+      }
+    }
+
+    // Mobile Menu Toggle
+    function toggleMobileMenu() {
+      const drawer = document.getElementById('mobile-menu-drawer');
+      const hamburger = document.getElementById('hamburger-icon');
+      const close = document.getElementById('close-icon');
+      if (!drawer) return;
+
+      const isOpen = drawer.classList.contains('drawer-open');
+      if (isOpen) {
+        drawer.classList.remove('drawer-open');
+        drawer.classList.add('drawer-closed');
+        hamburger.classList.remove('hidden');
+        close.classList.add('hidden');
+      } else {
+        drawer.classList.remove('drawer-closed');
+        drawer.classList.add('drawer-open');
+        hamburger.classList.add('hidden');
+        close.classList.remove('hidden');
+      }
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById('mobile-menu-drawer');
+      const hamburger = document.getElementById('hamburger-icon');
+      const close = document.getElementById('close-icon');
+      if (drawer && drawer.classList.contains('drawer-open')) {
+        drawer.classList.remove('drawer-open');
+        drawer.classList.add('drawer-closed');
+        hamburger.classList.remove('hidden');
+        close.classList.add('hidden');
+      }
+    }
+
+    // Close mobile drawer on outside click
+    document.addEventListener('click', (e) => {
+      const drawer = document.getElementById('mobile-menu-drawer');
+      const btn = document.getElementById('mobile-menu-btn');
+      if (drawer && drawer.classList.contains('drawer-open')) {
+        if (!drawer.contains(e.target) && !btn.contains(e.target)) {
+          closeMobileMenu();
+        }
+      }
+    });
+
+    // Send Feedback to WhatsApp
+    function sendFeedbackToWA(inputId) {
+      const input = document.getElementById(inputId);
+      const msg = input ? input.value.trim() : '';
+      const text = msg 
+        ? encodeURIComponent(`Halo Fahri, berikut saran/pesan saya:\n"${msg}"`) 
+        : encodeURIComponent('Halo Fahri, saya ingin berdiskusi dan memberikan masukan.');
+      window.open(`https://wa.me/6281392680936?text=${text}`, '_blank');
+      if (input) input.value = '';
+    }
+
+    // Top Scroll Progress Bar & Back to Top Controller
+    window.addEventListener('scroll', () => {
+      const scrollPos = window.scrollY || window.pageYOffset;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = maxScroll > 0 ? (scrollPos / maxScroll) * 100 : 0;
+      
+      const progressBar = document.getElementById('scroll-progress-bar');
+      if (progressBar) progressBar.style.width = `${progress}%`;
+
+      const backToTopBtn = document.getElementById('back-to-top-btn');
+      if (backToTopBtn) {
+        if (scrollPos > 320) {
+          backToTopBtn.classList.add('is-active');
+        } else {
+          backToTopBtn.classList.remove('is-active');
+        }
+      }
+    }, { passive: true });
+
+    // Animated Numbers Counter for Stats
+    let counterStarted = false;
+    function startCounterAnimation() {
+      if (counterStarted) return;
+      counterStarted = true;
+
+      const countElements = document.querySelectorAll('[data-counter-target]');
+      countElements.forEach(el => {
+        const target = parseInt(el.getAttribute('data-counter-target'), 10);
+        const suffix = el.getAttribute('data-counter-suffix') || '';
+        if (isNaN(target)) return;
+
+        const duration = 1600;
+        const startTime = performance.now();
+
+        function updateCounter(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = Math.floor(easeProgress * target);
+          el.textContent = current + suffix;
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+          } else {
+            el.textContent = target + suffix;
+          }
+        }
+        requestAnimationFrame(updateCounter);
+      });
+    }
+
+    // High Performance Intersection Observer for Scroll Reveals
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          if (entry.target.classList.contains('counter-trigger')) {
+            startCounterAnimation();
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -20px 0px'
+    });
+
+    // Observe all scroll reveal items
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+      revealObserver.observe(el);
+    });
+
+    // Safety fallback: reveal any items already in viewport or after brief delay
+    setTimeout(() => {
+      document.querySelectorAll('.reveal-on-scroll:not(.is-visible)').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('is-visible');
+          if (el.classList.contains('counter-trigger')) startCounterAnimation();
+        }
+      });
+    }, 600);
+  </script>
+</body>
+</html>
